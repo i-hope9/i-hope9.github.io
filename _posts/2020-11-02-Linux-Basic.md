@@ -1,6 +1,7 @@
 ---
 layout: article
 title: Linux 기초
+tags: [os, linux]
 aside:
     toc: true
 ---
