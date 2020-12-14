@@ -1,0 +1,149 @@
+---
+layout: article
+title: Spring Boot + Netty TCP 소켓 서버 (2) 기본 구조 구현
+tags: [java, spring, netty]
+aside:
+    toc: true
+---
+
+## 프로젝트 생성하기
+실제 회사에서 구현한 서버는 gradle 멀티 프로젝트로 구현되어 있습니다. 그리고 네티 소켓 서버는 하위 프로젝트 중 하나입니다. 본 글에서는 단일 프로젝트로 생성하는 방법으로 작성하겠습니다.</br>
+
+### build.gradle
+
+```groovy
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: '2.4.0'
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+}
+```
+
+### 프로젝트 구조
+
+## 소스 코드
+스프링 프레임워크에 네티를 적용하는 전체 구조는  [만티스쿠바님의 깃허브](https://github.com/zbum/netty-spring-example)를 참고했습니다.
+그 안에서 동작하는 네트의 구성 요소는 [Netty 공식 홈페이지](https://netty.io/wiki/user-guide-for-4.x.html)를 참고했습니다.<br/>
+네티 객체에 대한 설명은 코드 내 주석에 작성했습니다.
+####NettyServerApplication
+```java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class NettyServerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(NettyServerApplication.class, args);
+    }
+}
+```
+
+####ApplicationStartupTask
+```java
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class ApplicationStartupTask implements ApplicationListener<ApplicationReadyEvent> {
+
+    private final NettyServerSocket nettyServerSocket;
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        nettyServerSocket.start();
+    }
+}
+```
++ `ApplicationReadyEvent`: 스프링 부트 서비스를 시작 시 초기화하는 코드를 Bean으로 만들 때 사용합니다. 여기서는 네티 서버 소켓을 실행하여 incoming connection을 받을 준비를 합니다.
+
+####NettyConfiguration
+```java
+import com.ihope9.netty.netty.handler.NettyChannelInitializer;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.net.InetSocketAddress;
+
+@Configuration
+@RequiredArgsConstructor
+public class NettyConfiguration {
+
+    @Value("${server.host}")
+    private String host;
+    @Value("${server.port}")
+    private int port;
+    @Value("${server.netty.boss-count}")
+    private int bossCount;
+    @Value("${server.netty.worker-count}")
+    private int workerCount;
+    @Value("${server.netty.keep-alive}")
+    private boolean keepAlive;
+    @Value("${server.netty.backlog}")
+    private int backlog;
+
+    @Bean
+    public ServerBootstrap serverBootstrap(NettyChannelInitializer nettyChannelInitializer) {
+        // ServerBootstrap: 서버 설정을 도와주는 class
+        ServerBootstrap b = new ServerBootstrap();
+        b.group(bossGroup(), workerGroup())
+                // NioServerSocketChannel: incoming connections를 수락하기 위해 새로운 Channel을 객체화할 때 사용
+                .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.DEBUG))
+                // ChannelInitializer: 새로운 Channel을 구성할 때 사용되는 특별한 handler. 주로 ChannelPipeline으로 구성
+                .childHandler(nettyChannelInitializer);
+
+        // ServerBootstarp에 다양한 Option 추가 가능
+        // SO_BACKLOG: 동시에 수용 가능한 최대 incoming connections 개수
+        // 이 외에도 SO_KEEPALIVE, TCP_NODELAY 등 옵션 제공
+        b.option(ChannelOption.SO_BACKLOG, backlog);
+
+        return b;
+    }
+
+    // Boss: incoming connection을 수락하고, 수락한 connection을 worker에게 등록(register)
+    @Bean(destroyMethod = "shutdownGracefully")
+    public NioEventLoopGroup bossGroup() {
+        return new NioEventLoopGroup(bossCount);
+    }
+
+    // Worker: boss가 수락한 연결의 트래픽 관리
+    @Bean(destroyMethod = "shutdownGracefully")
+    public NioEventLoopGroup workerGroup() {
+        return new NioEventLoopGroup(workerCount);
+    }
+
+    // IP 소켓 주소(IP 주소, Port 번호)를 구현
+    // 도메인 이름으로 객체 생성 가능
+    @Bean
+    public InetSocketAddress inetSocketAddress() {
+        return new InetSocketAddress(host, port);
+    }
+
+}
+```
++ 네티 설정을 위한 클래스입니다.
++ `@Value` 어노테이션으로 스프링의 설정 파일(`application.yml` 혹은 `application.properties`)을 읽어 옵니다.
+
+####
+
+_⏳ 업데이트 예정입니다_
+<!--more-->
+
+---
