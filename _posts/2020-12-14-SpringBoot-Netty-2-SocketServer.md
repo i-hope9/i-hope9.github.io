@@ -7,7 +7,7 @@ aside:
 ---
 
 ## 프로젝트 생성하기
-실제 회사에서 구현한 서버는 gradle 멀티 프로젝트로 구현되어 있습니다. 그리고 네티 소켓 서버는 하위 프로젝트 중 하나입니다. 본 글에서는 단일 프로젝트로 생성하는 방법으로 작성하겠습니다.</br>
+실제 회사에서 구현한 서버는 gradle 멀티 프로젝트로 구현되어 있습니다. 그리고 네티 소켓 서버는 하위 프로젝트 중 하나입니다. 본 글에서는 단일 프로젝트로 생성하는 방법으로 작성하겠습니다.<br/>
 
 ### build.gradle
 
@@ -26,12 +26,14 @@ dependencies {
 ```
 
 ### 프로젝트 구조
+![Spring-Netty_프로젝트_구조도](/assets/images/structure/spring-netty-basic.png)
 
 ## 소스 코드
 스프링 프레임워크에 네티를 적용하는 전체 구조는  [만티스쿠바님의 깃허브](https://github.com/zbum/netty-spring-example)를 참고했습니다.
-그 안에서 동작하는 네트의 구성 요소는 [Netty 공식 홈페이지](https://netty.io/wiki/user-guide-for-4.x.html)를 참고했습니다.<br/>
-네티 객체에 대한 설명은 코드 내 주석에 작성했습니다.
-####NettyServerApplication
+그 안에서 동작하는 네트의 구성 요소는 [Netty 공식 홈페이지](https://netty.io/wiki/user-guide-for-4.x.html)를 참고했습니다. <br/>
+
+네티 객체에 대한 설명은 코드 내 주석에 작성했습니다.<br/>
+### NettyServerApplication
 ```java
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,8 +45,9 @@ public class NettyServerApplication {
     }
 }
 ```
++ `main()` 메소드가 선언된 클래스로, 스프링 부트가 시작되는 지점입니다.
 
-####ApplicationStartupTask
+### ApplicationStartupTask
 ```java
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -65,9 +68,9 @@ public class ApplicationStartupTask implements ApplicationListener<ApplicationRe
 ```
 + `ApplicationReadyEvent`: 스프링 부트 서비스를 시작 시 초기화하는 코드를 Bean으로 만들 때 사용합니다. 여기서는 네티 서버 소켓을 실행하여 incoming connection을 받을 준비를 합니다.
 
-####NettyConfiguration
+### NettyConfiguration
 ```java
-import com.ihope9.netty.netty.handler.NettyChannelInitializer;
+import com.ihope9.netty.handler.NettyChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -117,13 +120,13 @@ public class NettyConfiguration {
         return b;
     }
 
-    // Boss: incoming connection을 수락하고, 수락한 connection을 worker에게 등록(register)
+    // boss: incoming connection을 수락하고, 수락한 connection을 worker에게 등록(register)
     @Bean(destroyMethod = "shutdownGracefully")
     public NioEventLoopGroup bossGroup() {
         return new NioEventLoopGroup(bossCount);
     }
 
-    // Worker: boss가 수락한 연결의 트래픽 관리
+    // worker: boss가 수락한 연결의 트래픽 관리
     @Bean(destroyMethod = "shutdownGracefully")
     public NioEventLoopGroup workerGroup() {
         return new NioEventLoopGroup(workerCount);
@@ -135,13 +138,86 @@ public class NettyConfiguration {
     public InetSocketAddress inetSocketAddress() {
         return new InetSocketAddress(host, port);
     }
-
 }
 ```
 + 네티 설정을 위한 클래스입니다.
 + `@Value` 어노테이션으로 스프링의 설정 파일(`application.yml` 혹은 `application.properties`)을 읽어 옵니다.
 
-####
+### NettyServerSocket
+```java
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PreDestroy;
+import java.net.InetSocketAddress;
+
+@Slf4j
+@RequiredArgsConstructor
+@Component
+public class NettyServerSocket {
+    private final ServerBootstrap serverBootstrap;
+    private final InetSocketAddress tcpPort;
+    private Channel serverChannel;
+
+    public void start() {
+        try {
+            // ChannelFuture: I/O operation의 결과나 상태를 제공하는 객체
+            // 지정한 host, port로 소켓을 바인딩하고 incoming connections을 받도록 준비함
+            ChannelFuture serverChannelFuture = serverBootstrap.bind(tcpPort).sync();
+
+            // 서버 소켓이 닫힐 때까지 기다림
+            serverChannel = serverChannelFuture.channel().closeFuture().sync().channel();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Bean을 제거하기 전에 해야할 작업이 있을 때 설정
+    @PreDestroy
+    public void stop() {
+        if (serverChannel != null) {
+            serverChannel.close();
+            serverChannel.parent().closeFuture();
+        }
+    }
+}
+```
++ 네티 서버를 실행하는 클래스입니다. 앞서 `ApplicationStartupTask` 클래스에서 스프링 부트 서비스를 시작할 때 본 클래스의 `start()` 메소드를 실행하도록 설정했습니다.
+
+### NettyChannelInitializer
+```java
+import com.ihope9.netty.decoder.TestDecoder;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.socket.SocketChannel;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
+    private final TestHandler testHandler;
+
+    // 클라이언트 소켓 채널이 생성될 때 호출
+    @Override
+    protected void initChannel(SocketChannel ch) {
+        ChannelPipeline pipeline = ch.pipeline();
+
+        // decoder는 @sharable이 안 됨, 매번 새로운 객체 생성해야 함
+        TestDecoder testDecoder = new TestDecoder();
+
+        // 뒤이어 처리할 디코더 및 핸들러 추가
+        pipeline.addLast(testDecoder);
+        pipeline.addLast(testHandler);
+    }
+}
+```
+
 
 _⏳ 업데이트 예정입니다_
 <!--more-->
