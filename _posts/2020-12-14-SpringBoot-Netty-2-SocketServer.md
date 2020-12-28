@@ -7,7 +7,9 @@ aside:
 ---
 
 ## 프로젝트 생성하기
-실제 회사에서 구현한 서버는 gradle 멀티 프로젝트로 구현되어 있습니다. 그리고 네티 소켓 서버는 하위 프로젝트 중 하나입니다. 본 글에서는 단일 프로젝트로 생성하는 방법으로 작성하겠습니다.<br/>
+업무에서 구현한 서버는 gradle 멀티 프로젝트로 구현되어 있습니다. 그리고 네티 소켓 서버는 하위 프로젝트 중 하나입니다. 본 글에서는 단일 프로젝트로 생성하는 방법으로 작성하겠습니다.<br/>
+스프링 프레임워크에 네티를 적용하는 전체 구조는  [만티스쿠바님의 깃허브](https://github.com/zbum/netty-spring-example)를 참고했습니다.
+그 안에서 동작하는 네트의 구성 요소는 [Netty 공식 홈페이지](https://netty.io/wiki/user-guide-for-4.x.html)를 참고했습니다. <br/>
 
 ### build.gradle
 
@@ -29,11 +31,13 @@ dependencies {
 ![Spring-Netty_프로젝트_구조도](/assets/images/structure/spring-netty-basic.png)
 
 ## 소스 코드
-스프링 프레임워크에 네티를 적용하는 전체 구조는  [만티스쿠바님의 깃허브](https://github.com/zbum/netty-spring-example)를 참고했습니다.
-그 안에서 동작하는 네트의 구성 요소는 [Netty 공식 홈페이지](https://netty.io/wiki/user-guide-for-4.x.html)를 참고했습니다. <br/>
-
-네티 객체에 대한 설명은 코드 내 주석에 작성했습니다. 참고하기 편하도록 구조도 내 패키지 순으로 정리하였습니다.<br/>
-### NettyServerApplication
+본 서버는 TCP 기반의 서버로, 스트림 기반(stream-base) 송수신입니다. 이러한 데이터는 소켓 내 `receive buffer` 내에 쌓입니다. 스트림 기반 데이터는 패킷 단위로 데이터가 쌓이지 않고, 바이트로 쌓입니다.
+즉, 클라이언트에서 두 개의 패킷을 따로 전송한다고 해도 서버는 이를 하나의 바이트 배열로 받습니다. 따라서 TCP 기반의 서버를 구현할 때는 **쌓여 있는 바이트 배열을 어떤 기준으로 나누어 읽을지 규칙**을 세워야 합니다.<br/>
+네티를 사용하며 느낀 강점 중 하나가 바이트 배열을 유의미한 단위로 끊어서 읽을 수 있도록 많은 `decoder` 클래스를 제공한다는 점입니다. `decoder`를 잘 구현하면 클라이언트와 합의한 프로토콜에 맞게 패킷을 읽어올 수 있습니다.<br/>
+이 글에서는 클라이언트에서 정해진 길이(2048 bytes)를 하나의 패킷으로 읽어 오는 서버를 예시로 작성하였습니다. (실제 업무에서는 이렇게 규약을 세우는 경우는 거의 없겠지만요😅) <br/>
+네티 객체에 대한 설명은 코드 내 주석에 작성했습니다. 클래스는 참고하기 편하도록 구조도 내 패키지 순으로 정리하였습니다.<br/>
+### root package
+#### NettyServerApplication
 ```java
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
