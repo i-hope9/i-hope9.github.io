@@ -32,7 +32,7 @@ dependencies {
 스프링 프레임워크에 네티를 적용하는 전체 구조는  [만티스쿠바님의 깃허브](https://github.com/zbum/netty-spring-example)를 참고했습니다.
 그 안에서 동작하는 네트의 구성 요소는 [Netty 공식 홈페이지](https://netty.io/wiki/user-guide-for-4.x.html)를 참고했습니다. <br/>
 
-네티 객체에 대한 설명은 코드 내 주석에 작성했습니다.<br/>
+네티 객체에 대한 설명은 코드 내 주석에 작성했습니다. 참고하기 편하도록 구조도 내 패키지 순으로 정리하였습니다.<br/>
 ### NettyServerApplication
 ```java
 import org.springframework.boot.SpringApplication;
@@ -47,7 +47,8 @@ public class NettyServerApplication {
 ```
 + `main()` 메소드가 선언된 클래스로, 스프링 부트가 시작되는 지점입니다.
 
-### ApplicationStartupTask
+### config package
+#### ApplicationStartupTask
 ```java
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -68,7 +69,7 @@ public class ApplicationStartupTask implements ApplicationListener<ApplicationRe
 ```
 + `ApplicationReadyEvent`: 스프링 부트 서비스를 시작 시 초기화하는 코드를 Bean으로 만들 때 사용합니다. 여기서는 네티 서버 소켓을 실행하여 incoming connection을 받을 준비를 합니다.
 
-### NettyConfiguration
+#### NettyConfiguration
 ```java
 import com.ihope9.netty.handler.NettyChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
@@ -143,7 +144,8 @@ public class NettyConfiguration {
 + 네티 설정을 위한 클래스입니다.
 + `@Value` 어노테이션으로 스프링의 설정 파일(`application.yml` 혹은 `application.properties`)을 읽어 옵니다.
 
-### NettyServerSocket
+### socket package
+#### NettyServerSocket
 ```java
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -189,7 +191,8 @@ public class NettyServerSocket {
 ```
 + 네티 서버를 실행하는 클래스입니다. 앞서 `ApplicationStartupTask` 클래스에서 스프링 부트 서비스를 시작할 때 본 클래스의 `start()` 메소드를 실행하도록 설정했습니다.
 
-### NettyChannelInitializer
+### handler package
+#### NettyChannelInitializer
 ```java
 import com.ihope9.netty.decoder.TestDecoder;
 import io.netty.channel.ChannelInitializer;
