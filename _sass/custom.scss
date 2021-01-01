@@ -1,3 +1,65 @@
 /* start custom scss snippet */
 
+// blog title
+.header__brand {
+  & > a {
+    font-weight: map-get($base, font-weight-heavy);
+    font-family: map-get($base, font-family-code);
+  }
+}
+
+// header size 전체적으로 작게
+h1 {
+  font-size: map-get($base, font-size-h1-sm);
+  color: $text-color-d;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h1-xs);
+  }
+}
+
+h2 {
+  font-size: map-get($base, font-size-h2-sm);
+  color: $text-color-d;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h2-sm-xs);
+  }
+}
+
+h3 {
+  font-size: map-get($base, font-size-h3-sm);
+  color: $text-color-d;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h3-xs);
+  }
+}
+
+h4 {
+  font-size: map-get($base, font-size-h4-sm);
+  color: $text-color;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h4-xs);
+  }
+}
+
+h5 {
+  font-size: map-get($base, font-size-h5-sm);
+  color: $text-color;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h5-xs);
+  }
+}
+
+h6 {
+  font-size: map-get($base, font-size-h6-sm);
+  color: $text-color-l;
+  @include media-breakpoint-down(md) {
+    font-size: map-get($base, font-size-h6-xs);
+  }
+}
+
+// article code
+code {
+  font-size: map-get($base, font-size-sm);
+  line-height: map-get($base, line-height);
+}
 /* end custom scss snippet */

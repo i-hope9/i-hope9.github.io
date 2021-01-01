@@ -11,6 +11,7 @@
     // "skins/forest",
     // "skins/ocean",
     // "skins/orange",
+    // "skins/i-purple"
 
     "skins/highlight/{{ site.highlight_theme | default: site.data.variables.default.highlight_theme }}",
     // "skins/highlight/tomorrow",
@@ -72,3 +73,5 @@
 
     "custom"
 ;
+
+@import url(https://fonts.googleapis.com/earlyaccess/nanumgothiccoding.css);
