@@ -1,7 +1,7 @@
 ---
 layout: article
 title: Spring Boot + Netty TCP 소켓 서버 (1) 프레임워크 선택 배경
-tags: [java, spring, netty]
+tags: [java, spring, netty, tcp/ip]
 aside:
     toc: true
 ---
