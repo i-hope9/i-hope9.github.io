@@ -34,7 +34,7 @@ dependencies {
 ```
 
 ### 프로젝트 구조
-![Spring-Netty_프로젝트_구조도](/assets/images/structure/spring-netty-basic.png)
+![Spring-Netty_프로젝트_구조도](/assets/images/structure/netty/spring-netty-basic.png)
 
 ## 소스 코드
 네티 객체에 대한 설명은 코드 내 주석에 작성했습니다. 클래스는 참고하기 편하도록 구조도 내 패키지 순으로 정리하였습니다.<br/>
@@ -320,7 +320,7 @@ public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
 네티 서버 구현을 완료했습니다. 이제 의도한 바와 같이 클라이언트와 통신이 되는지 확인해보겠습니다.<br/>
 클라이언트는 네티를 사용하지 않고, 자바의 `Socket` 클래스로 개발했습니다. 테스트를 위해 최대한 간결하게 구현했습니다.
 ### 클라이언트 구조도
-![Spring-Socket_클라이언트 구조도](/assets/images/structure/spring-netty-client-1.png)
+![Spring-Socket_클라이언트 구조도](/assets/images/structure/netty/spring-netty-client-1.png)
 
 ### 클라이언트 소스 코드
 #### ClientSocketApplication
@@ -444,16 +444,16 @@ public class NonSslSocket{
 
 서버 `NettyServerApplication`의 `main()` 메소드를 먼저 실행해봅니다. 콘솔에 `Started NettyServerApplication in ... ` 메세지가 뜬다면 성공적으로 실행됐다는 뜻입니다. <br/>
 마찬가지로 `ClientSocketApplication`의 `main()` 메소드를 실행합니다. 전송하려는 메시지 길이를 입력하라는 문구가 뜹니다.
-![Spring-Netty_기초_테스트_1](/assets/images/test-console/spring-netty-basic-test-1.png) <br/>
+![Spring-Netty_기초_테스트_1](/assets/images/test-console/netty/spring-netty-basic-test-1.png) <br/>
 서버 디코더에 설정한 고정된 길이, 2048을 입력해봅니다.
-![Spring-Netty_기초_테스트_2](/assets/images/test-console/spring-netty-basic-test-2.png) <br/>
+![Spring-Netty_기초_테스트_2](/assets/images/test-console/netty/spring-netty-basic-test-2.png) <br/>
 잘 전송되었네요! 에코 서버로부터 다시 받은 메세지도 처음 보낸 그대로(AAAA...)입니다.
-![Spring-Netty_기초_테스트_3](/assets/images/test-console/spring-netty-basic-test-3.png) <br/>
+![Spring-Netty_기초_테스트_3](/assets/images/test-console/netty/spring-netty-basic-test-3.png) <br/>
 서버에서도 클라이언트와 연결되었을 때 호출되는 `channelActive()` 메소드의 로그가 잘 찍혀 있습니다.
 
 
 만약 정해진 길이 2048 보다 짧은 길이를 입력하면 어떻게 될까요?
-![Spring-Netty_기초_테스트_3](/assets/images/test-console/spring-netty-basic-test-4.png) <br/>
+![Spring-Netty_기초_테스트_3](/assets/images/test-console/netty/spring-netty-basic-test-4.png) <br/>
 서버에서 클라이언트와 연결도 잘 되었고, 클라이언트는 데이터 전송을 성공했지만 응답을 받지 못합니다. 즉, **서버의 디코더에 아직 2048 바이트가 쌓이지 않아** 서버에서 아무런 응답을 하지 않고 있음을 확인할 수 있습니다.
 
 ***
