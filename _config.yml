@@ -199,7 +199,15 @@ exclude:
   - /test
   - /vendor
 
+#collections_dir: docs
+collections:
+  posts:
+    output: true
+  posts_til:
+    output: true
+
 defaults:
+  ## posts
   - scope:
       path: ""
       type: posts
@@ -209,10 +217,17 @@ defaults:
       license: true
       aside:
         toc: true
-      show_edit_on_github: true
+      show_edit_on_github: false
       show_subscribe: true
       pageview: true
-
+  ## today_i_learned
+#  - scope:
+#      path: ""
+#      type: posts_til
+#    values:
+#      layout: article
+#      nav_key: til
+#      show_date: true
 
 ## => Plugins
 ##############################

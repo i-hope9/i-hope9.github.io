@@ -26,6 +26,32 @@ header:
 
   - titles:
       # @start locale config
+      en: &EN       TIL
+      en-GB: *EN
+      en-US: *EN
+      en-CA: *EN
+      en-AU: *EN
+      zh-Hans: &ZH_HANS  TIL
+      zh: *ZH_HANS
+      zh-CN: *ZH_HANS
+      zh-SG: *ZH_HANS
+      zh-Hant: &ZH_HANT  TIL
+      zh-TW: *ZH_HANT
+      zh-HK: *ZH_HANT
+      ko: &KO       TIL
+      ko-KR: *KO
+      fr: &FR       TIL
+      fr-BE: *FR
+      fr-CA: *FR
+      fr-CH: *FR
+      fr-FR: *FR
+      fr-LU: *FR
+      # @end locale config
+    url: /today-i-learned.html
+    key: til
+
+  - titles:
+      # @start locale config
       en      : &EN       About
       en-GB   : *EN
       en-US   : *EN
