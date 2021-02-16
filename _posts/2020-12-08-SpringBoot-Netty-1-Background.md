@@ -35,9 +35,9 @@ Netty는 위의 요구사항을 충족하기에 적합했어요.
 하지만 위의 장점 때문에 Netty를 선택했습니다. 데모 이후에 서버를 다시 개발하느니 처음부터 잘해두자는 생각이 컸어요. 학습하고 나니 오히려 개발 시간을 단축시켜 주었습니다. 제가 겪은 시행착오를 하나씩 블로그에 기록해두려고 합니다.
 
 ## 참고자료
-+ 역시 공식 문서가 최고입니다. A4 8장 분량의 User guide만 꼼꼼히 읽어도 많은 부분을 파악할 수 있습니다. [🔗](https://netty.io/wiki/user-guide-for-4.x.html, "Netty.docs: User guide")
-+ Spring Boot로 TCP 서버 구축하는 방법을 다양하게 다룹니다. 왜 Netty가 편리한지 BIO, NIO 서버 구축부터 차근차근 설명해줍니다. [🔗](https://programmer.help/blogs/spring-boot-build-tcp-server.html, "Spring Boot Build TCP Server")
-+ Spring Boot+Netty로 구현한 채팅 서버입니다. 깃허브에 올려주신 코드를 보며 매우 큰 도움을 받았습니다.  [🔗](https://www.manty.co.kr/bbs/detail/develop?id=69, "Spring Boot 와 Netty 의 아슬아슬한 동거")
++ 역시 공식 문서가 최고입니다. A4 8장 분량의 User guide만 꼼꼼히 읽어도 많은 부분을 파악할 수 있습니다. [🔗](https://netty.io/wiki/user-guide-for-4.x.html)
++ Spring Boot로 TCP 서버 구축하는 방법을 다양하게 다룹니다. 왜 Netty가 편리한지 BIO, NIO 서버 구축부터 차근차근 설명해줍니다. [🔗](https://programmer.help/blogs/spring-boot-build-tcp-server.html)
++ Spring Boot+Netty로 구현한 채팅 서버입니다. 깃허브에 올려주신 코드를 보며 매우 큰 도움을 받았습니다.  [🔗](https://www.manty.co.kr/bbs/detail/develop?id=69)
 
 <!--more-->
 

@@ -142,5 +142,5 @@ public class MailUtil {
 <!--more-->
 
 ### 참고자료
-+ 늘 많은 도움을 받는 Baeldung 사이트 [🔗](https://www.baeldung.com/spring-boot-internationalization, "Guide to Internationalization in Spring Boot")
-+ Thymeleaf 공식 문서 [🔗](https://www.thymeleaf.org/doc/articles/springmail.html, "Sending email in Spring with Thymeleaf")
++ 늘 많은 도움을 받는 Baeldung 사이트 [🔗](https://www.baeldung.com/spring-boot-internationalization)
++ Thymeleaf 공식 문서 [🔗](https://www.thymeleaf.org/doc/articles/springmail.html)

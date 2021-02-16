@@ -14,11 +14,11 @@ aside:
 ### 서버에 인증서 적용
 #### 무료 인증서 발급
 SSL 인증을 적용하려면 SSL 인증서를 발급 받아야 합니다. 운영 환경에서는 공인된 기관에서 발급 받은 유료 인증서를 사용해야 하지만, 본 글에서는 테스트를 위해 90일 무료로 사용할 수 있는 인증서를 사용하겠습니다.
-> 💡 무료 인증서는 [ZeroSSL](https://zerossl.com/, "ZeroSSL") 사이트에서 발급 받았습니다. UI가 사용하기 매우 쉽게 되어 있으므로 자세한 설명은 생략하겠습니다. <br/>
+> 💡 무료 인증서는 [ZeroSSL](https://zerossl.com/) 사이트에서 발급 받았습니다. UI가 사용하기 매우 쉽게 되어 있으므로 자세한 설명은 생략하겠습니다. <br/>
 
 #### PKC8로 변환
-[네티 공식 문서](https://netty.io/wiki/sslcontextbuilder-and-private-key.html, "Netty.docs: SslContextBuilder and Private Key")에 따르면 PKCS8 keys만 지원합니다.
-ZeroSSL에서 다운 받은 파일 중 `private.key` 파일을 PKCS8로 바꾸는 작업을 해줍니다. 명령 프롬프트(cmd)에서 [네티 공식 문서](https://netty.io/wiki/sslcontextbuilder-and-private-key.html, "Netty.docs: SslContextBuilder and Private Key")에 나와 있는 아래의 명령어를 입력합니다.
+[네티 공식 문서](https://netty.io/wiki/sslcontextbuilder-and-private-key.html)에 따르면 PKCS8 keys만 지원합니다.
+ZeroSSL에서 다운 받은 파일 중 `private.key` 파일을 PKCS8로 바꾸는 작업을 해줍니다. 명령 프롬프트(cmd)에서 [네티 공식 문서](https://netty.io/wiki/sslcontextbuilder-and-private-key.html)에 나와 있는 아래의 명령어를 입력합니다.
 ```shell
 openssl pkcs8 -topk8 -nocrypt -in private.key -out pkcs8_key.pem
 ```
@@ -33,7 +33,7 @@ ssl:
 ```
 
 ### truststore에 인증서 등록
-`truststore`는 클라이언트에서 서버의 인증서를 확인하기 위해 사용합니다. SSL 인증서를 `truststore`에 등록하는 방법은 [무중력 물고기](https://zero-gravity.tistory.com/199, "[Java] keystore/truststore 생성, SSL 사용 예.")님의 글을 보고 큰 도움 받았습니다.
+`truststore`는 클라이언트에서 서버의 인증서를 확인하기 위해 사용합니다. SSL 인증서를 `truststore`에 등록하는 방법은 [무중력 물고기](https://zero-gravity.tistory.com/199)님의 글을 보고 큰 도움 받았습니다.
 앞서 저희는 인증서를 다운 받아 두었으므로, 글의 **3. cacerts 파일에 keystore를 추가하는 방법**을 참고하여 keystore를 추가합니다.
 ```shell
 keytool -import -alias <alias> -file <cerFileName>.cer -keystore cacerts –storepass changeit
