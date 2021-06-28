@@ -6,17 +6,137 @@ aside:
     toc: true
 ---
 
-💡 본 글은 스파르타코딩클럽 '왕초보 시작반' 1주차 강의 내용을 바탕으로 정리하였습니다.
+💡 본 글은 스파르타코딩클럽 '왕초보 시작반' 3주차 강의 내용을 바탕으로 정리하였습니다.
 
 ## Python 기초
+### 변수 선언
+변수형을 따로 선언할 필요 없이 변수명으로만 바로 선언 가능
 
-> 📌 공식 홈페이지 소개: jQuery is a fast, small, and feature-rich JavaScript library. It makes things like HTML document traversal and manipulation, event handling, animation, and Ajax much simpler with an easy-to-use API that works across a multitude of browsers. With a combination of versatility and extensibility, jQuery has changed the way that millions of people write JavaScript.
+```python
+first_name = 'taco'
+last_name = 'kim'
+```
 
-![스파르타코딩클럽_2주차_숙제](/assets/images/posts/2021-06-24_homework.png) <br/>
+### 리스트, 딕셔너리
+```python
+# 리스트
+fruits = ['사과', '배', '수박']
+fruits.append('귤')
 
-***
+# 딕셔너리
+a_dictionary = {'name':'bob', 'age': 27}
+print(a_dictionary['name'])
+a_dictionary['height'] = 178
+```
+
+### 함수
+```python
+def 함수이름(파라미터, ...):
+  return 반환값
+```
+
+### 조건문
+```python
+def is_adult(age):
+    if age > 20:
+        print('성인입니다')
+    else:
+        print('청소년입니다')
+
+is_adult(30)
+is_adult(15)
+```
+
+### 반복문
+```python
+# 배열 안의 요소를 하나씩 꺼내서 사용
+fruits = ['사과','배','배','감','수박','귤','딸기','사과','배','수박']
+
+for fruit in fruits:
+    print(fruit)
+
+# 딕셔너리 안의 요소를 하나씩 꺼내서 사용
+people = [{'name': 'bob', 'age': 20},
+          {'name': 'carry', 'age': 38},
+          {'name': 'john', 'age': 7},
+          {'name': 'smith', 'age': 17},
+          {'name': 'ben', 'age': 27}]
+
+for person in people:
+    print(person['name'], person['age'])
+```
+
+## 파이썬 패키지 설치하기
+### 패키지와 라이브러리
+* Python에서 패키지는 모듈(일종의 기능들 묶음)을 모아 놓은 단위
+* 패키지의 묶음이 라이브러리
+
+### 가상환경(Virtual Environment)이란?
+* 같은 시스템에서 프로젝트마다 다른 패키지, 라이브러리를 써야한다고 할 때 프로젝트마다 격리된 실행 환경을 지원하는 기능
+
+> 📌 자세한 사항은 [Pyhton doc 내용](https://docs.python.org/ko/3/tutorial/venv.html) 참고!
+
+### 패키지 설치하기
+* `🛠Settings` 들어가서 아래 `+` 버튼 누르고 원하는 패키지 설치
+
+![스파르타코딩클럽_2주차_숙제](/assets/images/posts/2021-06-25_py_package.png) <br/>
+
+### `requests` 패키지 사용
+> 📌 [공식 문서](https://docs.python-requests.org/en/master/)
+
+```python
+import requests # requests 라이브러리 설치 필요
+
+r = requests.get('http://openapi.seoul.go.kr:8088/6d4d776b466c656533356a4b4b5872/json/RealtimeCityAir/1/99')
+rjson = r.json()
+
+gus = rjson['RealtimeCityAir']['row']
+
+for gu in gus:
+    gu_name = gu['MSRSTE_NM']
+    gu_mise = gu['IDEX_MVL']
+    if gu_mise > 50:
+        print(gu_name, gu_mise)
+```
+
+### `bs4` 패키지 사용: 웹스크래핑(크롤링)
+> 📌 [공식 문서](https://www.crummy.com/software/BeautifulSoup/bs4/doc//)
+
+* `request` 보내서 페이지 가져오기
+* 가져온 페이지에서 원하는 정보 솎아내기
+
+```python
+import requests
+from bs4 import BeautifulSoup
+
+headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
+data = requests.get('https://movie.naver.com/movie/sdb/rank/rmovie.nhn?sel=pnt&date=20200303',headers=headers)
+
+soup = BeautifulSoup(data.text, 'html.parser')
+
+# 하나 가져오기
+# select 경로는? 크롬 검사에서 오른쪽 마우스 copy selector
+title = soup.select_one('#old_content > table > tbody > tr:nth-child(2) > td.title > div > a')
+
+# 태그의 텍스트 가져오기
+print(title.text)
+
+# 태그의 속성 가져오기
+print(title['href'])
+
+# 여러 개 가져오기
+trs = soup.select('#old_content > table > tbody > tr')
+for tr in trs:
+    a_tag = tr.select_one('td.title > div > a')
+    if a_tag is not None:
+        rank = tr.select_one('img')['alt']
+        title = a_tag.text
+        point = tr.select_one('td.point').text
+        print(rank, title, point)
+```
+
+> 💡 스크래핑 해오는 방식은 각자 다 다름. 어떻게든 효율적으로 원하는 정보를 가져온다면 됨!
 
 <!--more-->
 ## 참고자료
 + [스파르타 코딩클럽](https://spartacodingclub.kr/)
-+ [jQuery Document](https://jquery.com/)
