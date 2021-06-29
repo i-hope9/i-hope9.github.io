@@ -137,6 +137,47 @@ for tr in trs:
 
 > 💡 스크래핑 해오는 방식은 각자 다 다름. 어떻게든 효율적으로 원하는 정보를 가져온다면 됨!
 
+## Python - MongoDB 연동
+### DB 접속을 위한 기본 코드
+```python
+from pymongo import MongoClient
+
+client = MongoClient('localhost', 27017)  # 'localhost:27017' DB에 연결
+db = client.dbsparta  # 이 이름의 DB에 접속, 없으면 생성
+```
+
+### DB CRUD
+#### Create: `insert`
+```python
+# insert - db 안의 'users' collection 안에 하나 삽입
+doc = {'name': 'jane', 'age': 21}
+db.users.insert_one(doc)
+```
+
+#### Read: `find`
+
+```python
+# find
+same_ages = list(db.users.find({'age':21},{'_id':False}))
+for person in same_ages:
+    print(person)
+
+user = db.users.find_one({'name':'bobby'})
+```
+
+#### Update: `update`
+
+```python
+# update
+db.users.update_one({'name': 'bobby'}, {'$set': {'age':19}})
+db.users.update_many({'name': 'bobby'}, {'$set': {'age': 19}})
+```
+
+#### Delete: `delete`
+```python
+db.users.delete_one({'name':'bobby'})
+```
+
 <!--more-->
 ## 참고자료
 + [스파르타 코딩클럽](https://spartacodingclub.kr/)
