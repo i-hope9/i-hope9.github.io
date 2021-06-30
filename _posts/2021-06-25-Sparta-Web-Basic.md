@@ -178,6 +178,41 @@ db.users.update_many({'name': 'bobby'}, {'$set': {'age': 19}})
 db.users.delete_one({'name':'bobby'})
 ```
 
+## 숙제
+* 지니 뮤직 순위 크롤링하기
+* 크롤링 결과 내가 원하는 정보를 얻기 위해서는 문자열 다루는 함수를 활용해야 함
+
+### Python 문자열 다루기
+#### 문자열에서 특정 문자 인덱스 찾기
+* `index('문자')`
+
+```python
+my_string = "Hello, World!"
+my_index = my_string.index(',')
+```
+
+#### 문자열 자르기(Slicing)
+* `문자열[시작인덱스:끝인덱스]`, 끝인덱스는 미포함
+* 시작인덱스, 끝인덱스를 생략하면 각각 0, 문자열 마지막 인덱스로 잘라옴
+
+```python
+b = "Hello, World!"
+print(b[2:5])
+```
+
+#### 문자열 공백 제거(Remove Whitespace)
+* `strip()`: 양옆 공백 제거
+* `rstrip()`: 오른쪽 공백 제거
+* `lstrip()`: 왼쪽 공백 제거
+
+```python
+a = " Hello, World! "
+print(a.strip()) # returns "Hello, World!"
+```
+
+
 <!--more-->
+
 ## 참고자료
 + [스파르타 코딩클럽](https://spartacodingclub.kr/)
++ [W3Schools Python String Ref.](https://www.w3schools.com/python/python_ref_string.asp)
