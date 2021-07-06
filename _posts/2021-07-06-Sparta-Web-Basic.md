@@ -1,6 +1,6 @@
 ---
 layout: article
-title: 웹 개발 기초 04. Flask 서버 만들기 (feat. 스파르타 코딩 클럽)
+title: 웹 개발 기초 04. Flask 서버 구현 (feat. 스파르타 코딩 클럽)
 tags: [web, html, css, javascript]
 aside:
     toc: true
@@ -88,7 +88,7 @@ def test_post():
 * 메타 태그를 잘 활용하면 내 사이트 이미지 썸네일, 제목, 설명 등을 표시할 수 있음
 
 ### 메타 태그 스크래핑
-* Beautiful Soup `soup.select_one(태그[속성]])`: 어떤 태그 중에서 특정 속성을 가진 요소를 가져와주세요
+* Beautiful Soup `soup.select_one(태그[속성]])`: 어떤 태그 중에서 특정 속성을 가진 요소를 가져오기
 
 ```python
 # 메타태그 스크래핑하기 예시
@@ -115,7 +115,16 @@ title = soup.select_one('meta[property="og:title"]')
 * 클라이언트 개발
 * 완성한 기능 확인
 
+## 숙제
+* 지난 번에 만든 쇼핑몰 프론트엔드에 서버 붙이기
+* 주문 등록 API, 주문 목록 불러오기 API 개발
+* 예시 페이지에 프론트엔드 유효성 검사도 있길래 구현했는데 이번 범위는 아니었나 봄
 
+![스파르타코딩클럽_4주차_숙제](/assets/images/posts/2021-07-06_homework.png) <br/>
+
+
+***
+파이썬으로 웹 서버 개발은 처음 해봤는데, 확실히 가볍고 빠르게 서버를 구현할 수 있다고 느꼈다. 그래도 스프링으로 RESTful API를 구현해봐서 큰 틀은 쉽게 이해할 수 있었다. 같은 내용을 연습, 숙제하며 스파르타처럼 반복하다 보니 익숙해졌다😂
 <!--more-->
 
 ## 참고자료

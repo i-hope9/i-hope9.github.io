@@ -210,7 +210,7 @@ a = " Hello, World! "
 print(a.strip()) # returns "Hello, World!"
 ```
 
-
+***
 <!--more-->
 
 ## 참고자료
