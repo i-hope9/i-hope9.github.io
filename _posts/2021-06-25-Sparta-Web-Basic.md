@@ -99,7 +99,7 @@ for gu in gus:
         print(gu_name, gu_mise)
 ```
 
-### `bs4` 패키지 사용: 웹스크래핑(크롤링)
+### `bs4` 패키지 사용: 웹스크래핑
 > 📌 [공식 문서](https://www.crummy.com/software/BeautifulSoup/bs4/doc//)
 
 * `request` 보내서 페이지 가져오기
@@ -179,8 +179,8 @@ db.users.delete_one({'name':'bobby'})
 ```
 
 ## 숙제
-* 지니 뮤직 순위 크롤링하기
-* 크롤링 결과 내가 원하는 정보를 얻기 위해서는 문자열 다루는 함수를 활용해야 함
+* 지니 뮤직 순위 스크래핑
+* 스크래핑 결과 내가 원하는 정보를 얻기 위해서는 문자열 다루는 함수를 활용해야 함
 
 ### Python 문자열 다루기
 #### 문자열에서 특정 문자 인덱스 찾기
