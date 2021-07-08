@@ -95,6 +95,18 @@ def test_post():
 title = soup.select_one('meta[property="og:title"]')
 ```
 
+## Python - MongoDB 연동
+#### Read: `find`, `sort`
+* 예시 프로젝트에서 사용된 영화 배우 목록은 좋아요(like) 기준 역순으로 정렬되어야 함
+* `find()` 함수 뒤에 바로 `sort()` 호출
+
+```python
+mycol.find().sort("name", 1)  #ascending
+mycol.find().sort("name", -1) #descending
+```
+
+> 🌐 [Pymongo_w3school](https://www.w3schools.com/python/python_mongodb_sort.asp)
+
 ## 연습 프로젝트 진행
 ### API 설계
 * 본격적인 개발을 하기 전, API를 설계
