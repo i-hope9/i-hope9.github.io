@@ -19,17 +19,17 @@ aside:
 
 #### Service Client Builder
 
-###Supporting Types
+### Supporting Types
 
-####Model Types
+#### Model Types
 
-##SDK Feature Implementation
+## SDK Feature Implementation
 
-###Logging
+### Logging
 
-###Distributed tracing
+### Distributed tracing
 
-##Testing
+## Testing
 
 <!--more-->
 
