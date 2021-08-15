@@ -11,11 +11,12 @@ aside:
 ## API Implementation
 이 문서는 Azure SDK 클라이언트 라이브러리를 구현하기 위한 가이드라인입니다. 이 가이드라인의 일부는 코드 생성 도구(code generation tools)에 의해 자동으로 적용됩니다.
 
+
 ⛔️ 구현 코드(즉, public API의 일부를 구성하지 않은 코드)를 public API로 오인하지 않도록 하십시오. 구현 코드를 위한 두 가지 약정이 있는데, 우선 순위는 다음과 같습니다.
 1. 구현 클래스를 package-private으로 만들고, 이를 사용하는 클래스(consuming class)와 같은 패키지 내에 배치할 수 있습니다.
 2. 구현 클래스를 `implementation`으로 명명된 서브패키지 내에 배치할 수 있습니다.
 
-CheckStyle 검사는 `implementation` 패키지 내의 클래스가 public API를 통해 노출되지 않도록 확인합니다. 하지만 처음부터 API를 public으로 구현하지 않는 것이 좋으므로, 가능하면 package-private를 적용하는 것이 더 나은 방법입니다.
+CheckStyle 검사는 `implementation` 패키지 내의 클래스가 public API를 통해 노출되지 않도록 확인합니다. 하지만 우선 API를 public으로 구현하지 않는 것이 좋으므로, 가능하면 package-private를 적용하는 것이 더 낫습니다.
 
 ### Service Client
 #### Async Service Client
@@ -53,7 +54,7 @@ public final class ConfigurationClientBuilder { ... }
 ### Supporting Types
 #### Model Types
 ##### Annotations
-다음 조건에 해당하는 경우, 모델 클래스에 적용해야 하는 두 가지 어노테이션이 있습니다.
+조건에 해당하는 경우, 모델 클래스에 적용해야 하는 두 가지 어노테이션이 있습니다.
 * `@Fluent` 어노테이션은 최종 사용자에게 fluent API를 제공할 것으로 예상되는 모든 모델 클래스에 적용됩니다.
 * `@Immutable` 어노테이션은 모든 불변(immutable) 클래스에 적용됩니다.
 
@@ -61,6 +62,99 @@ public final class ConfigurationClientBuilder { ... }
 
 ## SDK Feature Implementation
 ### Logging
+클라이언트 라이브러리는 azure core의 강력한 로깅 메커니즘을 사용해야 합니다. 이는 개발자(consumer)가 메서드 호출의 문제를 적절하게 진단하고, 그 문제가 개발자 코드, 클라이언트 라이브러리 코드, 서비스 중 어디에서 발생했는지 확인할 수 있도록 하기 위함입니다.
+
+✅ 모든 클라이언트 라이브러리에서는 Azure Core가 제공하는 `ClientLogger` API를 유일한 로깅 API로 사용하십시오. 내부적으로 `ClientLogger`는 SLF4J를 래핑하므로, SLF4J를 통해 제공되는 모든 외부 구성(configuration)이 유효합니다. 최종 사용자에게 SLF4J 구성을 노출하는 것이 좋습니다. 자세한 내용은 [SLF4J](http://www.slf4j.org/manual.html) 설명서를 참조하십시오.
+
+✅ 모든 관련 클래스에 `ClientLogger` 인스턴스를 생성하십시오. 단, 성능이 매우 중요하거나, 인스턴스의 수명이 짧아 고유한 로거를 사용하기에 비용이 과하거나, 클래스 인스턴스화가 허용되지 않는 static-only 클래스는 예외입니다. 이러한 예외의 경우, 공유 또는 static 로거 인스턴스가 허용됩니다. 예를 들어, 아래 코드는 `ConfigurationAsyncClient`에 대한 `ClientLogger`를 생성합니다.
+
+```java
+public final class ConfigurationAsyncClient {
+    private final ClientLogger logger = new ClientLogger(ConfigurationAsyncClient.class);
+
+    // example async call to a service that uses the Project Reactor APIs to log request, success, and error
+    // information out to the service logger instance
+    public Mono<Response<ConfigurationSetting>> setSetting(ConfigurationSetting setting) {
+        return service.setKey(serviceEndpoint, setting.key(), setting.label(), setting, getETagValue(setting.etag()), null)
+            .doOnRequest(ignoredValue -> logger.info("Setting ConfigurationSetting - {}", setting))
+            .doOnSuccess(response -> logger.info("Set ConfigurationSetting - {}", response.value()))
+            .doOnError(error -> logger.warning("Failed to set ConfigurationSetting - {}", setting, error));
+    }
+}
+```
+
+static 로거는 JVM 인스턴스에서 실행되는 모든 클라이언트 라이브러리 인스턴스 간에 공유됩니다. static 로거는 인스턴스 수명이 짧은 경우에만 신중히 사용해야 합니다.
+✅ 로그를 내보낼 때는 다음 로그 레벨 중 하나를 사용하십시오: `Verbose`(상세 정보), `Informational`(발생한 상황), `Warning`(문제일 수 있는 상황), Error.
+
+✅ `Error` 레벨은 응용 프로그램이 복구할 가능성이 거의 없는 오류(메모리 부족 등)에 사용하십시오.
+
+✅ `Warning` 레벨은 함수가 의도한 작업을 수행하지 못한 경우 사용하십시오. 이는 일반적으로 함수가 예외를 발생시킨다는 것을 의미합니다. self-healing 이벤트 발생(예: 요청이 자동으로 재시도되는 경우)은 포함하지 마십시오.
+✔️ 요청/응답 주기(응답 body 시작까지)가 서비스 정의 임계값(service-defined threshold)을 초과하면 `Warning` 수준에서 요청 및 응답을 기록할 수 있습니다. false-positives(*실제로는 문제가 아닌데 문제로 진단되는 경우)를 최소화하고, 서비스 문제를 식별하려면 임계값을 선택해야 합니다.
+
+✅ `Informational` 레벨은 함수가 정상적으로 작동할 때 사용하십시오.
+
+✅ `Verbose` 레벨은 자세한 문제 해결 시나리오를 위해 사용하십시오. 이는 주로 개발자 혹은 시스템 관리자가 특정 오류를 진단하기 위한 것입니다.
+
+✅ 승인된 헤더와 쿼리 파라미터의 서비스 제공 "허용 목록(allow-list)"에 있는 헤더 및 쿼리 파라미터만 로그로 기록하십시오. 다른 모든 헤더와 쿼리 파라미터는 해당 값을 수정해야 합니다.
+
+✅ `Informational` 메세지로 요청 라인과 헤더를 로그에 남기십시오. 로그는 다음의 정보를 포함해야 합니다:
+* HTTP 메서드
+* URL
+* 쿼리 파라미터(허용 목록에 없는 경우 수정)
+* 요청 헤더(허용 목록에 없는 경우 수정)
+* SDK가 제공하는 (correlation purpose를 위한) 요청 ID
+* 요청이 시도된 횟수
+
+이는 기본적으로 azure-core 내에서 수행하지만, 사용자가 `httpLogOptions` 구성(configuration) 빌더를 통해 설정할 수 있습니다.
+
+✅ `Informational` 메세지로 응답 라인과 헤더를 로그에 남기십시오. 로그 형식은 다음과 같아야 합니다:
+* SDK에서 제공한 요청 ID(위 참조)
+* 상태 코드
+* 상태 코드와 함께 제공된 메세지
+* 응답 헤더(허용 목록에 없는 경우 수정)
+* 요청의 첫 번째 시도와 본문의 첫 번째 바이트 사이의 기간
+
+✅ 서비스 요청이 취소된 경우 `Informational` 로그를 기록하십시오. 로그에는 다음이 포함되어야 합니다:
+* SDK에서 제공한 요청 ID(위 참조)
+* 취소 사유(가능한 경우)
+
+✅ 예외(exception thrown)는 `Warning` 레벨 메지지로 기록하십시오. 로그 레벨이 `Verbose`로 설정된 경우, stack trace 정보를 메세지에 포함하십시오. (_DO log exceptions thrown as a Warning level message. If the log level set to Verbose, append stack trace information to the message._)
+
+✅ 클라이언트 라이브러리 코드 내에서 발생한 모든 예외는 다음 로거 API 중 하나를 통해 발생시킵시오:
+* `ClientLogger.logThrowableAsError()`
+* `ClientLogger.logThrowableAsWarning()`
+* `ClientLogger.logExceptionAsError()`
+* `ClientLogger.logExceptionAsWarning()`
+
+아래 예시가 있습니다.
+```java
+// ⛔️ NO!!!!
+if (priority != null && priority < 0) {
+    throw new IllegalArgumentException("'priority' cannot be a negative value. Please specify a zero or positive long value.");
+}
+
+// ✅ Good
+
+// Log any Throwable as error and throw the exception
+if (!file.exists()) {
+    throw logger.logThrowableAsError(new IOException("File does not exist " + file.getName()));
+}
+
+// Log any Throwable as warning and throw the exception
+if (!file.exists()) {
+    throw logger.logThrowableAsWarning(new IOException("File does not exist " + file.getName()));
+}
+
+// Log a RuntimeException as error and throw the exception
+if (priority != null && priority < 0) {
+    throw logger.logExceptionAsError(new IllegalArgumentException("'priority' cannot be a negative value. Please specify a zero or positive long value."));
+}
+
+// Log a RuntimeException as warning and throw the exception
+if (numberOfAttempts < retryPolicy.getMaxRetryCount()) {
+    throw logger.logExceptionAsWarning(new RetryableException("A transient error occurred. Another attempt will be made after " + retryPolicy.getDelay()));
+}
+```
 
 ### Distributed tracing
 
