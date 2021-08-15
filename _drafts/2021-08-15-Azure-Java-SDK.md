@@ -42,13 +42,24 @@ public final class ConfigurationAsyncClient {
 | `@ServiceMethod` |Service Method|클라이언트 클래스인지 여부에 관계 없이, 네트워크 작업을 수행하는 모든 메서드에 명시합니다.|
 
 #### Service Client Builder
+##### Annotations
+`@ServiceClientBuilder` 어노테이션은 서비스 클라이언트 인스턴스화를 담당하는 클래스에 반드시 명시되어야 합니다. 즉, `@ServiceClient` 어노테이션이 적용된 클래스를 인스턴스화하는 클래스에 배치되어야 합니다. 예시는 다음과 같습니다.
+```java
+@ServiceClientBuilder(serviceClients = {ConfigurationClient.class, ConfigurationAsyncClient.class})
+public final class ConfigurationClientBuilder { ... }
+```
+위의 빌더는 `ConfigurationClient` 및 `ConfigurationAsyncClient`의 인스턴스를 작성할 수 있다고 명시합니다.
 
 ### Supporting Types
-
 #### Model Types
+##### Annotations
+다음 조건에 해당하는 경우, 모델 클래스에 적용해야 하는 두 가지 어노테이션이 있습니다.
+* `@Fluent` 어노테이션은 최종 사용자에게 fluent API를 제공할 것으로 예상되는 모든 모델 클래스에 적용됩니다.
+* `@Immutable` 어노테이션은 모든 불변(immutable) 클래스에 적용됩니다.
+
+> 📌 Fluent API란? 사용자가 이해하고 사용하기 쉬운 API를 제공하기 위한 디자인 패턴. 메소드 체이닝을 지원하는 등의 방법으로 구현한다. (??)
 
 ## SDK Feature Implementation
-
 ### Logging
 
 ### Distributed tracing
