@@ -157,8 +157,39 @@ if (numberOfAttempts < retryPolicy.getMaxRetryCount()) {
 ```
 
 ### Distributed tracing
+분석 추적 메커니즘(Distributed tracing mechanisms)을 통해 사용자는 그들의 코드를 프론트엔드부터 백엔드까지 추적할 수 있습니다. 분산 추적 라이브러리는 고유한 작업 단위인 범위(span)를 생성합니다. 각가의 범위는 부모-자식 관계에 있습니다. 코드 계층 구조에 더 깊이 들어갈수록 더 많은 범위가 생성됩니다. 그 다음, 필요에 따라 이러한 범위를 적합한 수신자(receiver)로 내보낼 수 있습니다. 범위를 추적하려면, 분산 추적 컨텍스트(이하 컨텍스트)는 각 연속 계층으로 전달됩니다. 자세한 정보는 [OpenTelemetry](https://opentelemetry.io)의 추적 항목을 참조하십히오.
+
+✅ HTTP 파이프라인 인스턴스화의 일부로 플러그형 파이프라인 정책을 지원하십시오. 이를 통해 개발자는 추적 플러그인을 포함하고, 해당 파이프라인 정책을 사용 중인 모든 클라이언트 라이브러리에 자동으로 주입할 수 있습니다.
+
+아래의 예시 코드를 검토해보십시오. 이 코드에서는 서비스 클라이언트 빌더가 해당 정책에 `HttpPipeline`을 생성하고 있습니다. 동시에, 빌더는 `HttpPolicyProviders.addBeforeRetryPolicies(policies)` 및 `HttpPolicyProviders.addAfterRetryPolicies(policies)` 행을 사용하여 플러그인이 ‘before retry’와 ‘after retry’ 정책을 추가할 수 있도록 허용합니다.
+
+```java
+public ConfigurationAsyncClient build() {
+    ...
+
+    // Closest to API goes first, closest to wire goes last.
+    final List<HttpPipelinePolicy> policies = new ArrayList<>();
+    policies.add(new UserAgentPolicy(AzureConfiguration.NAME, AzureConfiguration.VERSION, buildConfiguration));
+    policies.add(new RequestIdPolicy());
+    policies.add(new AddHeadersPolicy(headers));
+    policies.add(new AddDatePolicy());
+    policies.add(new ConfigurationCredentialsPolicy(buildCredentials));
+    HttpPolicyProviders.addBeforeRetryPolicies(policies);
+    policies.add(retryPolicy);
+    policies.addAll(this.policies);
+    HttpPolicyProviders.addAfterRetryPolicies(policies);
+    policies.add(new HttpLoggingPolicy(httpLogDetailLevel));
+
+    ...
+}
+```
+
+✅ 추적 범위와 함께 제공해야 하는 추가 메타데이터를 설정하려면 Azure core `TracerProxy` API를 사용하십시오. 특히 `setAttribute(String key, String value, Context context)` 메서드를 사용하여 추적 컨텍스트에서 새 키/값 쌍을 설정합니다.
+
+✅ 서비스 메서드 인수로 받은 Context 객체 전부를 모든 경우에 생성된 서비스 인터페이스 메서드로 전달하십시오.
 
 ## Testing
+✅ 사용 가능한 모든 HTTP 클라이언트와 서비스 버전을 사용하려면, 적용 가능한 모든 단위 테스트를 매개변수화(parameterize)하십시오. 모든 테스트의 매개변수화된 실행은 라이브 테스트의 일부로 이루어져야 합니다. Netty와 최신 서비스 버전으로 구성된 짧은 실행은 PR 유효성 검사가 발생할 때마다 실행할 수 있습니다. (??)
 
 <!--more-->
 
