@@ -22,7 +22,7 @@ CheckStyle 검사는 `implementation` 패키지 내의 클래스가 public API�
 #### Async Service Client
 ⛔️ 비동기 클라이언트 라이브러리 내에 blocking calls를 포함하지 마십시오. 비동기 API 안의 blocking calls를 감지하기 위해 [BlockHound](https://github.com/reactor/BlockHound)를 사용하십시오.
 
-> 📌 BlockHound란?
+> 📌 BlockHound란? Non-blocking 쓰레드에 blocking calls가 쓰였는지 감지하는 자바 에이전트. Reactor에서 제공.
 
 #### Annotations
 서비스 클라이언트 클래스에는 다음의 어노테이션을 포함하십시오. 아래 코드에서 다음 두 어노테이션을 사용하는 예시 클래스를 볼 수 있습니다.
@@ -55,14 +55,14 @@ public final class ConfigurationClientBuilder { ... }
 #### Model Types
 ##### Annotations
 조건에 해당하는 경우, 모델 클래스에 적용해야 하는 두 가지 어노테이션이 있습니다.
-* `@Fluent` 어노테이션은 최종 사용자에게 fluent API를 제공할 것으로 예상되는 모든 모델 클래스에 적용됩니다.
+* `@Fluent` 어노테이션은 최종 사용자에게 유연한(fluent) API를 제공할 것으로 예상되는 모든 모델 클래스에 적용됩니다.
 * `@Immutable` 어노테이션은 모든 불변(immutable) 클래스에 적용됩니다.
 
 > 📌 Fluent API란? 사용자가 이해하고 사용하기 쉬운 API를 제공하기 위한 디자인 패턴. 메소드 체이닝을 지원하는 등의 방법으로 구현한다. (??)
 
 ## SDK Feature Implementation
 ### Logging
-클라이언트 라이브러리는 azure core의 강력한 로깅 메커니즘을 사용해야 합니다. 이는 개발자(consumer)가 메서드 호출의 문제를 적절하게 진단하고, 그 문제가 개발자 코드, 클라이언트 라이브러리 코드, 서비스 중 어디에서 발생했는지 확인할 수 있도록 하기 위함입니다.
+클라이언트 라이브러리는 azure core의 강력한 로깅 메커니즘을 사용해야 합니다. 이는 사용자(consumer)가 메서드 호출의 문제를 적절하게 진단하고, 그 문제가 개발자 코드, 클라이언트 라이브러리 코드, 서비스 중 어디에서 발생했는지 확인할 수 있도록 하기 위함입니다.
 
 ✅ 모든 클라이언트 라이브러리에서는 Azure Core가 제공하는 `ClientLogger` API를 유일한 로깅 API로 사용하십시오. 내부적으로 `ClientLogger`는 SLF4J를 래핑하므로, SLF4J를 통해 제공되는 모든 외부 구성(configuration)이 유효합니다. 최종 사용자에게 SLF4J 구성을 노출하는 것이 좋습니다. 자세한 내용은 [SLF4J](http://www.slf4j.org/manual.html) 설명서를 참조하십시오.
 
@@ -85,7 +85,7 @@ public final class ConfigurationAsyncClient {
 
 static 로거는 JVM 인스턴스에서 실행되는 모든 클라이언트 라이브러리 인스턴스 간에 공유됩니다. static 로거는 인스턴스 수명이 짧은 경우에만 신중히 사용해야 합니다.
 
-✅ 로그를 내보낼 때는 다음 로그 레벨 중 하나를 사용하십시오: `Verbose`(상세 정보), `Informational`(발생한 상황), `Warning`(문제일 수 있는 상황), Error.
+✅ 로그를 내보낼 때는 다음 로그 레벨 중 하나를 사용하십시오: `Verbose`(상세 정보), `Informational`(발생한 상황), `Warning`(문제일 수 있는 상황), `Error`.
 
 ✅ `Error` 레벨은 응용 프로그램이 복구할 가능성이 거의 없는 오류(메모리 부족 등)에 사용하십시오.
 
@@ -120,7 +120,8 @@ static 로거는 JVM 인스턴스에서 실행되는 모든 클라이언트 라�
 * SDK에서 제공한 요청 ID(위 참조)
 * 취소 사유(가능한 경우)
 
-✅ 예외(exception thrown)는 `Warning` 레벨 메지지로 기록하십시오. 로그 레벨이 `Verbose`로 설정된 경우, stack trace 정보를 메세지에 포함하십시오. (_DO log exceptions thrown as a Warning level message. If the log level set to Verbose, append stack trace information to the message._)
+✅ 예외(exception thrown)는 `Warning` 레벨 메지지로 기록하십시오. 로그 레벨이 `Verbose`로 설정된 경우, stack trace 정보를 메세지에 포함하십시오.
+(_DO log exceptions thrown as a Warning level message. If the log level set to Verbose, append stack trace information to the message._)
 
 ✅ 클라이언트 라이브러리 코드 내에서 발생한 모든 예외는 다음 로거 API 중 하나를 통해 발생시킵시오:
 * `ClientLogger.logThrowableAsError()`
@@ -159,9 +160,9 @@ if (numberOfAttempts < retryPolicy.getMaxRetryCount()) {
 ```
 
 ### Distributed tracing
-분석 추적 메커니즘(Distributed tracing mechanisms)을 통해 사용자는 그들의 코드를 프론트엔드부터 백엔드까지 추적할 수 있습니다. 분산 추적 라이브러리는 고유한 작업 단위인 범위(span)를 생성합니다. 각가의 범위는 부모-자식 관계에 있습니다. 코드 계층 구조에 더 깊이 들어갈수록 더 많은 범위가 생성됩니다. 그 다음, 필요에 따라 이러한 범위를 적합한 수신자(receiver)로 내보낼 수 있습니다. 범위를 추적하려면, 분산 추적 컨텍스트(이하 컨텍스트)는 각 연속 계층으로 전달됩니다. 자세한 정보는 [OpenTelemetry](https://opentelemetry.io)의 추적 항목을 참조하십히오.
+분석 추적 메커니즘(Distributed tracing mechanisms)을 통해 사용자는 그들의 코드를 프론트엔드부터 백엔드까지 추적할 수 있습니다. 분산 추적 라이브러리는 고유한 작업 단위인 범위(span)를 생성합니다. 각각의 범위는 부모-자식 관계에 있습니다. 코드 계층 구조에 더 깊이 들어갈수록 더 많은 범위가 생성됩니다. 그 다음, 필요에 따라 이러한 범위를 적합한 수신자(receiver)로 내보낼 수 있습니다. 범위를 추적하기 위해, _distributed tracing context_(분산 추적 컨텍스트, 이하 컨텍스트)는 각 연속 계층으로 전달됩니다. 자세한 정보는 [OpenTelemetry](https://opentelemetry.io)의 추적 항목을 참조하십히오.
 
-✅ HTTP 파이프라인 인스턴스화의 일부로 플러그형 파이프라인 정책을 지원하십시오. 이를 통해 개발자는 추적 플러그인을 포함하고, 해당 파이프라인 정책을 사용 중인 모든 클라이언트 라이브러리에 자동으로 주입할 수 있습니다.
+✅ HTTP 파이프라인 인스턴스화의 일부로써 플러그형 파이프라인 정책을 지원하십시오. 이를 통해 개발자는 추적 플러그인을 포함하고, 해당 파이프라인 정책을 사용 중인 모든 클라이언트 라이브러리에 자동으로 주입할 수 있습니다.
 
 아래의 예시 코드를 검토해보십시오. 이 코드에서는 서비스 클라이언트 빌더가 해당 정책에 `HttpPipeline`을 생성하고 있습니다. 동시에, 빌더는 `HttpPolicyProviders.addBeforeRetryPolicies(policies)` 및 `HttpPolicyProviders.addAfterRetryPolicies(policies)` 행을 사용하여 플러그인이 ‘before retry’와 ‘after retry’ 정책을 추가할 수 있도록 허용합니다.
 
@@ -187,11 +188,13 @@ public ConfigurationAsyncClient build() {
 ```
 
 ✅ 추적 범위와 함께 제공해야 하는 추가 메타데이터를 설정하려면 Azure core `TracerProxy` API를 사용하십시오. 특히 `setAttribute(String key, String value, Context context)` 메서드를 사용하여 추적 컨텍스트에서 새 키/값 쌍을 설정합니다.
+> 📌 [TracerPolicy](https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/core/azure-core/src/main/java/com/azure/core/util/tracing/TracerProxy.java)
 
 ✅ 서비스 메서드 인수로 받은 Context 객체 전부를 모든 경우에 생성된 서비스 인터페이스 메서드로 전달하십시오.
 
 ## Testing
 ✅ 사용 가능한 모든 HTTP 클라이언트와 서비스 버전을 사용하려면, 적용 가능한 모든 단위 테스트를 매개변수화(parameterize)하십시오. 모든 테스트의 매개변수화된 실행은 라이브 테스트의 일부로 이루어져야 합니다. Netty와 최신 서비스 버전으로 구성된 짧은 실행은 PR 유효성 검사가 발생할 때마다 실행할 수 있습니다. (??)
+> 📌 `@ParameterizedTest` 어노테이션을 적용한 단위 테스트를 의미하는 것으로 보임.
 
 _이하 TODO_
 <!--more-->
