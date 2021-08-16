@@ -120,7 +120,7 @@ static 로거는 JVM 인스턴스에서 실행되는 모든 클라이언트 라�
 * SDK에서 제공한 요청 ID(위 참조)
 * 취소 사유(가능한 경우)
 
-✅ 예외(exception thrown)는 `Warning` 레벨 메지지로 기록하십시오. 로그 레벨이 `Verbose`로 설정된 경우, stack trace 정보를 메세지에 포함하십시오.
+✅ 예외(exception thrown)는 `Warning` 레벨 메세지로 기록하십시오. 로그 레벨이 `Verbose`로 설정된 경우, stack trace 정보를 메세지에 포함하십시오.
 (_DO log exceptions thrown as a Warning level message. If the log level set to Verbose, append stack trace information to the message._)
 
 ✅ 클라이언트 라이브러리 코드 내에서 발생한 모든 예외는 다음 로거 API 중 하나를 통해 발생시킵시오:
