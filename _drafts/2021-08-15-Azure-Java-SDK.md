@@ -160,7 +160,7 @@ if (numberOfAttempts < retryPolicy.getMaxRetryCount()) {
 ```
 
 ### Distributed tracing
-분석 추적 메커니즘(Distributed tracing mechanisms)을 통해 사용자는 그들의 코드를 프론트엔드부터 백엔드까지 추적할 수 있습니다. 분산 추적 라이브러리는 고유한 작업 단위인 범위(span)를 생성합니다. 각각의 범위는 부모-자식 관계에 있습니다. 코드 계층 구조에 더 깊이 들어갈수록 더 많은 범위가 생성됩니다. 그 다음, 필요에 따라 이러한 범위를 적합한 수신자(receiver)로 내보낼 수 있습니다. 범위를 추적하기 위해, _distributed tracing context_(분산 추적 컨텍스트, 이하 컨텍스트)는 각 연속 계층으로 전달됩니다. 자세한 정보는 [OpenTelemetry](https://opentelemetry.io)의 추적 항목을 참조하십히오.
+분산 추적 메커니즘(Distributed tracing mechanisms)을 통해 사용자는 그들의 코드를 프론트엔드부터 백엔드까지 추적할 수 있습니다. 분산 추적 라이브러리는 고유한 작업 단위인 범위(span)를 생성합니다. 각각의 범위는 부모-자식 관계에 있습니다. 코드 계층 구조에 더 깊이 들어갈수록 더 많은 범위가 생성됩니다. 그 다음, 필요에 따라 이러한 범위를 적합한 수신자(receiver)로 내보낼 수 있습니다. 범위를 추적하기 위해, _distributed tracing context_(분산 추적 컨텍스트, 이하 컨텍스트)는 각 연속 계층으로 전달됩니다. 자세한 정보는 [OpenTelemetry](https://opentelemetry.io)의 추적 항목을 참조하십히오.
 
 ✅ HTTP 파이프라인 인스턴스화의 일부로써 플러그형 파이프라인 정책을 지원하십시오. 이를 통해 개발자는 추적 플러그인을 포함하고, 해당 파이프라인 정책을 사용 중인 모든 클라이언트 라이브러리에 자동으로 주입할 수 있습니다.
 
