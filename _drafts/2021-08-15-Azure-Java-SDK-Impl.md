@@ -1,7 +1,7 @@
 ---
 layout: article
 title: Azure SDK for Java - Implementation
-tags: [cloud, azure]
+tags: [cloud, azure, 오픈소스아카데미]
 aside:
     toc: true
 ---
