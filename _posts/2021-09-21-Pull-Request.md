@@ -64,15 +64,21 @@ $ git add [수정한 파일 경로]
 ```
 
 ### Commit
-`add` 명령어로 수정한 파일을 모두 추가한 후, 수정 내역(Commit)을 만듭니다.
+`add` 명령어로 수정한 파일을 모두 추가한 후, 수정 내역(Commit)을 만듭니다. <br/>
+`commit` 할 때 메시지는 다른 개발자와 소통하기 쉽도록 명확하게 적어 줍니다.
 ```shell
-# -m 옵션으로 commit 메시지를 작성
-# 메시지는 다른 개발자와 소통하기 쉽도록 명확하게 적어 줍니다.
+# 옵션 없이 commit 명령어를 실행하면 vi 에디터로 메시지 작성
+$ git commit
+
+# -m 옵션으로 commit 메시지를 바로 작성
 $ git commit -m "Translate API Implementation of java implementation into Korean"
+
 
 # 내가 작성한 commit을 확인 (종료하려면 q)
 $ git show
 ```
+
+> 💡 `commit` 메시지 작성 시, Github에서 제공하는 기능으로 Issue - PR 사이를 연동할 수 있습니다. 메시지에 `closes #이슈번호` 등으로 함께 적어주면 됩니다. 자세한 사항은 [Github Doc](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)을 참고하세요!
 
 ### 참고: Stash
 `stash`는 수정한 내용을 임시 저장해두는 명령어입니다. Commit stage에 올리기는 애매하지만 전후 상황을 비교해보고 싶을 때 사용합니다. (저의 경우 가이드라인 프로젝트 빌드를 위해 Gemfile을 수정해야 했는데, 이 내용을 Commit 내역에 올릴 수 없어 사용했습니다.)
@@ -127,15 +133,21 @@ $ git push --force origin java/impl:java/impl
 ```
 
 ## Pull Request
-Push 작업을 마치면, 개인 저장소 Github 페이지에 가면 Compare & pull request 버튼이 생깁니다. 버튼을 눌러 수정 내역을 작성한 후 Create pull request 버튼을 누릅니다. 내용 작성 시에는 어떤 부분을 왜 변경했는지 자세하게 작성합니다.
+Push 작업을 마치면, 개인 저장소 Github 페이지에 가면 Compare & pull request 버튼이 생깁니다. <br/>
+![Github Fork](/assets/images/posts/2021-09-21_pr_3_pr.jpg) <br/>
+
+버튼을 눌러 수정 내역을 작성한 후 Create pull request 버튼을 누릅니다. 내용 작성 시에는 어떤 부분을 왜 변경했는지 자세하게 작성합니다. <br/>
+![Github Fork](/assets/images/posts/2021-09-21_pr_4_pr.jpg) <br/>
+
+> 💡 참고로 스크린샷의 'WIP'는 'Work in Progress', 즉 진행 중의 약자입니다. 아직 해당 브랜치의 작업이 완료되지는 않은 상태를 의미합니다. 컨트리뷰션 진행 내역을 확인하기 위해 다음과 같은 약어를 사용할 수도 있습니다. (만약 한 Commit에 ㅊㅊ한 PR의 규칙이 있는 오픈소스 프로젝트는 이와 같은 약어를 사용하지 않을 수도 있습니다.)
 
 ## Merge 후 Branch 삭제
 Pull request를 완료하면 공식 오픈소스 저장소의 Owner(혹은 다른 개발자)가 Review를 합니다. <br/>
 Review 이후 Merge가 되면? Pull request의 한 사이클이 끝납니다👏! <br/>
-로컬에서 작업했던 Branch에 이어서 작업하거나, 필요하다면 아래 명령어로 삭제합니다.
+Merge가 완료되면 아래의 명령어로 작업하던 브랜치를 삭제해줍니다.
 
 ```shell
-$ git branch -D java/impl
+$ git branch -d [브랜치이름]
 ```
 
 ***
