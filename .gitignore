@@ -12,6 +12,7 @@
 /.vscode/
 .idea/
 *.iml
+BLOG_STYLE_GUIDE.md
 
 node_modules/
 .sass-cache/
