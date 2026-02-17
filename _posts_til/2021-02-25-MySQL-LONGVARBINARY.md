@@ -1,6 +1,6 @@
 ---
 layout: article
-title: MySQ에서 `LONGVARBINARY`를 쓰고 싶다면?
+title: MySQL에서 LONGVARBINARY를 쓰고 싶다면?
 aside:
     toc: false
 ---
