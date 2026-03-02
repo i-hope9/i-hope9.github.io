@@ -1,6 +1,6 @@
 ---
 layout: article
-title: 앱을 만들며 읽어 보는 \<유저 프렌들리\> — Part 2
+title: 앱을 만들며 읽어 보는 <유저 프렌들리> — Part 2
 tags: [ux, book, app]
 aside:
   toc: true
